@@ -11,25 +11,35 @@ Future<void> sleep() => Future<void>.delayed(const Duration(milliseconds: 100));
 
 void main() {
   group('E2E', () {
+    late Directory cacheDirectory;
+
+    setUpAll(() async {
+      cacheDirectory = await Directory(path.join(
+        Directory.current.path,
+        '.cache',
+      )).create();
+    });
+
+    tearDownAll(() async {
+      await cacheDirectory.delete();
+    });
+
     late Storage storage;
 
+    late Directory tempStorageDirectory;
+
     setUp(() async {
+      tempStorageDirectory = cacheDirectory.createTempSync();
       storage = await HydratedStorage.build(
-        storageDirectory: Directory(
-          path.join(Directory.current.path, '.cache'),
-        ),
+        storageDirectory: tempStorageDirectory,
       );
       HydratedStateNotifier.storage = storage;
     });
 
     tearDown(() async {
       await storage.clear();
-      try {
-        Directory(
-          path.join(Directory.current.path, '.cache'),
-        ).deleteSync(recursive: true);
-        await HydratedStorage.hive.deleteFromDisk();
-      } catch (_) {}
+      await HydratedStorage.hive.deleteFromDisk();
+      await tempStorageDirectory.delete(recursive: true);
     });
 
     test('NIL constructor', () {

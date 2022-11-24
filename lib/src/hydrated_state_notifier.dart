@@ -45,7 +45,8 @@ abstract class HydratedStateNotifier<State> extends StateNotifier<State>
 /// * [HydratedStateNotifier] to enable automatic state persistence/restoration with [StateNotifier]
 ///
 mixin HydratedMixin<State> on StateNotifier<State> {
-  State? get _cachedState {
+  @protected
+  State? readSavedState() {
     final storage = HydratedStateNotifier.storage;
     try {
       final stateJson = storage.read(storageToken) as Map<dynamic, dynamic>?;
@@ -61,7 +62,8 @@ mixin HydratedMixin<State> on StateNotifier<State> {
     return null;
   }
 
-  set _cacheState(State change) {
+  @protected
+  void saveState(State change) {
     final storage = HydratedStateNotifier.storage;
     try {
       final stateJson = _toJson(change);
@@ -78,11 +80,12 @@ mixin HydratedMixin<State> on StateNotifier<State> {
 
   void hydrate() {
     if (_synchronized) return;
-    final cachedState = _cachedState;
-    if (cachedState != null) {
-      state = cachedState;
-    } else if (state != null) {
-      _cacheState = state;
+    final cachedState = readSavedState();
+    final value = super.state;
+    if (cachedState != null && cachedState != value) {
+      super.state = cachedState;
+    } else if (value != null) {
+      saveState(value);
     }
     _synchronized = true;
   }
@@ -91,7 +94,7 @@ mixin HydratedMixin<State> on StateNotifier<State> {
   @protected
   State get state {
     if (super.state != null && _synchronized) return super.state!;
-    final cachedState = _cachedState;
+    final cachedState = readSavedState();
     if (cachedState != null) {
       super.state = cachedState;
       return cachedState;
@@ -102,9 +105,8 @@ mixin HydratedMixin<State> on StateNotifier<State> {
   @override
   @protected
   set state(State change) {
-    if (identical(super.state, change)) return;
     super.state = change;
-    _cacheState = change;
+    saveState(change);
   }
 
   State? _fromJson(dynamic json) {

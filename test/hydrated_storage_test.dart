@@ -21,9 +21,8 @@ void main() {
 
     tearDown(() async {
       await storage.clear();
-      try {
-        await HydratedStorage.hive.deleteFromDisk();
-      } catch (_) {}
+      await HydratedStorage.hive.close();
+      await HydratedStorage.hive.deleteFromDisk();
     });
 
     group('migration', () {
@@ -189,6 +188,8 @@ void main() {
       tearDown(() async {
         await storage.clear();
         await Hive.close();
+        await Hive.deleteFromDisk();
+        await HydratedStorage.hive.close();
         await Directory(temp).delete(recursive: true);
         await Directory(docs).delete(recursive: true);
       });
@@ -202,6 +203,7 @@ void main() {
         var box = await Hive.openBox<String>('hive');
         await box.put('name', 'hive');
         expect(box.get('name'), 'hive');
+        box.close();
         await Hive.close();
 
         // https://github.com/hivedb/hive/pull/521#issuecomment-767903897
@@ -211,6 +213,8 @@ void main() {
         box = await Hive.openBox<String>('hive');
         expect(box.get('name'), isNotNull);
         expect(box.get('name'), 'hive');
+        box.close();
+        await Hive.close();
       });
     });
   });

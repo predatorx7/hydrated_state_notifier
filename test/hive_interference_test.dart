@@ -32,6 +32,7 @@ void main() {
 
       Hive.init(cwd);
       await box1.deleteFromDisk();
+      await impl2.close();
       await Hive.deleteBoxFromDisk('impl2');
     });
 
