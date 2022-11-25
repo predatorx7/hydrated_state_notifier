@@ -1,5 +1,4 @@
 name: hydrated_state_notifier
-name: Build
 
 on:
   push:
