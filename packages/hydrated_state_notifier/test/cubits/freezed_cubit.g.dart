@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-// ignore_for_file: implicit_dynamic_parameter
+// ignore_for_file: implicit_dynamic_parameter, non_constant_identifier_names
 
 part of 'freezed_cubit.dart';
 

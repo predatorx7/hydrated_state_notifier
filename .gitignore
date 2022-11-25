@@ -8,3 +8,4 @@ build/
 
 **.hive
 **.lock
+coverage/
