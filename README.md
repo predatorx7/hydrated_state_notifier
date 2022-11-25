@@ -106,4 +106,4 @@ final counterController = HydratedStateController(
 
 ## Additional information
 
-This is based on [hydrated_bloc](https://pub.dev/packages/hydrated_bloc).
+This is based on [hydrated_bloc](https://pub.dev/packages/hydrated_bloc), and [hydrated_notifier](https://pub.dev/packages/hydrated_notifier).
