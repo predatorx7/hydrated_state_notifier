@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:hydrated_state_notifier/hydrated_state_notifier.dart';
 import 'package:hydrated_state_notifier/src/hydrated_state_notifier.dart';
+import 'package:hydrated_state_notifier_hive/hydrated_state_notifier_hive.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 
@@ -24,21 +25,21 @@ void main() {
       await cacheDirectory.delete();
     });
 
-    late Storage storage;
+    late HydratedStorage storage;
 
     late Directory tempStorageDirectory;
 
     setUp(() async {
       tempStorageDirectory = cacheDirectory.createTempSync();
-      storage = await HydratedStorage.build(
-        storageDirectory: tempStorageDirectory,
+      storage = await HiveHydratedStorage.build(
+        storageDirectoryPath: tempStorageDirectory.path,
       );
-      HydratedStateNotifier.commonStorage = storage;
+      HydratedStorage.storage = storage;
     });
 
     tearDown(() async {
       await storage.clear();
-      await HydratedStorage.hive.deleteFromDisk();
+      await HiveHydratedStorage.hive.deleteFromDisk();
       await tempStorageDirectory.delete(recursive: true);
     });
 

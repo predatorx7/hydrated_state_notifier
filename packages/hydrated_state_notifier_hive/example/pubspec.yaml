@@ -8,9 +8,9 @@ environment:
 
 dependencies:
   hydrated_state_notifier:
-    path: ../
+    path: ../../hydrated_state_notifier
   hydrated_state_notifier_hive:
-    path: ../../hydrated_state_notifier_hive
+    path: ../
   path: ^1.8.2
 
 dev_dependencies:

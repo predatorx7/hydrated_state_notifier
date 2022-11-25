@@ -5,7 +5,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 import 'package:uuid/uuid.dart';
 
-class MockStorage extends Mock implements Storage {}
+class MockStorage extends Mock implements HydratedStorage {}
 
 class MyUuidHydratedStateNotifier extends HydratedStateNotifier<String> {
   MyUuidHydratedStateNotifier() : super(const Uuid().v4());
@@ -91,7 +91,7 @@ class MyMultiHydratedStateNotifier extends HydratedStateNotifier<int> {
 
 void main() {
   group('HydratedStateNotifier', () {
-    late Storage storage;
+    late HydratedStorage storage;
 
     setUp(() {
       storage = MockStorage();
@@ -99,7 +99,7 @@ void main() {
       when<dynamic>(() => storage.read(any())).thenReturn(<String, dynamic>{});
       when(() => storage.delete(any())).thenAnswer((_) async {});
       when(() => storage.clear()).thenAnswer((_) async {});
-      HydratedStateNotifier.commonStorage = storage;
+      HydratedStorage.storage = storage;
     });
 
     test('reads from storage once upon initialization', () {
@@ -207,7 +207,7 @@ void main() {
 
     group('SingleHydratedStateNotifier', () {
       test('should throw StorageNotFound when storage is null', () {
-        HydratedStateNotifier.commonStorage = null;
+        HydratedStorage.setStorageNull();
         expect(
           () => MyHydratedStateNotifier(),
           throwsA(isA<StorageNotFound>()),
@@ -222,14 +222,14 @@ void main() {
           'Please ensure that storage has been initialized.\n'
           '\n'
           'For example:\n\n'
-          'HydratedStateNotifier.storage = await HydratedStorage.build();',
+          'HydratedStorage.storage = await HiveHydratedStorage.build();',
         );
       });
 
       test('storage getter returns correct storage instance', () {
         final storage = MockStorage();
-        HydratedStateNotifier.commonStorage = storage;
-        expect(HydratedStateNotifier.commonStorage, storage);
+        HydratedStorage.storage = storage;
+        expect(HydratedStorage.storage, storage);
       });
 
       test('should call storage.write when onChange is called', () {

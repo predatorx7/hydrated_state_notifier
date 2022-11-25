@@ -1,8 +1,8 @@
-# Hydrated State Notifier Hive
+# Hydrated State Notifier
 
 ## Features
 
-An implementation of HydratedStorage from [hydrated_state_notifier](https://pub.dev/packages/hydrated_state_notifier)
+An extension to the [state_notifier](https://pub.dev/packages/state_notifier)
 library which automatically persists and restores states built on top of
 [hive](https://pub.dev/packages/hive).
 
@@ -15,9 +15,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   /// Initialize storage
-  HydratedStorage.storage = await HiveHydratedStorage.build(
+  HydratedStateNotifier.storage = await HydratedStorage.build(
     storageDirectory: kIsWeb
-        ? ''
+        ? HydratedStorage.webStorageDirectory
         : await getTemporaryDirectory(),
   );
 

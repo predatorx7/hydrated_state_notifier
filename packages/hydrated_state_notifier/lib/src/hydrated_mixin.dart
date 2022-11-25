@@ -23,7 +23,7 @@ part of 'hydrated_state_notifier.dart';
 /// * [HydratedStateNotifier] to enable automatic state persistence/restoration with [StateNotifier]
 ///
 mixin HydratedMixin<State> on StateNotifier<State> {
-  Storage get storage;
+  HydratedStorage get storage;
 
   @protected
   State? readSavedState() {

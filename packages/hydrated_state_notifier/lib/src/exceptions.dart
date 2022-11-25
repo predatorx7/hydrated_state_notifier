@@ -15,7 +15,7 @@ class HydratedCyclicError extends HydratedUnsupportedError {
 /// ```dart
 /// void main() async {
 ///   WidgetsFlutterBinding.ensureInitialized();
-///   HydratedStateNotifier.storage = await HydratedStorage.build();
+///   HydratedStorage.storage = await HiveHydratedStorage.build();
 ///   runApp(MyApp());
 /// }
 /// ```
@@ -30,7 +30,7 @@ class StorageNotFound implements Exception {
     return 'Storage was accessed before it was initialized.\n'
         'Please ensure that storage has been initialized.\n\n'
         'For example:\n\n'
-        'HydratedStateNotifier.storage = await HydratedStorage.build();';
+        'HydratedStorage.storage = await HiveHydratedStorage.build();';
   }
 }
 

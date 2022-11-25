@@ -14,7 +14,7 @@ class HydratedStateController<State> extends HydratedStateNotifier<State> {
     State state, {
     required FromJsonCallback<State> fromJson,
     required ToJsonCallback<State> toJson,
-    Storage? storage,
+    HydratedStorage? storage,
     String id = '',
     int version = 1,
   })  : _fromJson = fromJson,

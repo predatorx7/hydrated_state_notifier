@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:hive/hive.dart';
 import 'package:hive/src/hive_impl.dart';
 import 'package:hydrated_state_notifier/hydrated_state_notifier.dart';
+import 'package:hydrated_state_notifier_hive/hydrated_state_notifier_hive.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
@@ -16,12 +17,12 @@ void main() {
     final cwd = Directory.current.absolute.path;
     final storageDirectory = Directory(cwd);
 
-    late Storage storage;
+    late HydratedStorage storage;
 
     tearDown(() async {
       await storage.clear();
-      await HydratedStorage.hive.close();
-      await HydratedStorage.hive.deleteFromDisk();
+      await HiveHydratedStorage.hive.close();
+      await HiveHydratedStorage.hive.deleteFromDisk();
     });
 
     group('migration', () {
@@ -30,8 +31,8 @@ void main() {
             .writeAsString(json.encode({
           'CounterBloc': json.encode({'value': 4})
         }));
-        storage = await HydratedStorage.build(
-          storageDirectory: storageDirectory,
+        storage = await HiveHydratedStorage.build(
+          storageDirectoryPath: storageDirectory.path,
         );
         expect(storage.read('CounterBloc')['value'] as int, 4);
       });
@@ -39,16 +40,18 @@ void main() {
 
     group('build', () {
       setUp(() async {
-        await (await HydratedStorage.build(storageDirectory: storageDirectory))
+        await (await HiveHydratedStorage.build(
+          storageDirectoryPath: storageDirectory.path,
+        ))
             .clear();
       });
 
       test('reuses existing instance when called multiple times', () async {
-        final instanceA = storage = await HydratedStorage.build(
-          storageDirectory: storageDirectory,
+        final instanceA = storage = await HiveHydratedStorage.build(
+          storageDirectoryPath: storageDirectory.path,
         );
-        final instanceB = await HydratedStorage.build(
-          storageDirectory: storageDirectory,
+        final instanceB = await HiveHydratedStorage.build(
+          storageDirectoryPath: storageDirectory.path,
         );
         expect(instanceA, instanceB);
       });
@@ -58,22 +61,22 @@ void main() {
           'when storageDirectory is webStorageDirectory', () async {
         final completer = Completer<void>();
         await runZonedGuarded(() {
-          HydratedStorage.build(
-            storageDirectory: HydratedStorage.webStorageDirectory,
+          HiveHydratedStorage.build(
+            storageDirectoryPath: '',
           ).whenComplete(completer.complete);
           return completer.future;
         }, (Object _, StackTrace __) {});
         expect(HiveImpl().homePath, isNull);
-        storage = await HydratedStorage.build(
-          storageDirectory: storageDirectory,
+        storage = await HiveHydratedStorage.build(
+          storageDirectoryPath: storageDirectory.path,
         );
       });
 
       test('creates internal HiveImpl with correct directory', () async {
-        storage = await HydratedStorage.build(
-          storageDirectory: storageDirectory,
+        storage = await HiveHydratedStorage.build(
+          storageDirectoryPath: storageDirectory.path,
         );
-        final box = HydratedStorage.hive.box<dynamic>('hydrated_box');
+        final box = HiveHydratedStorage.hive.box<dynamic>('hydrated_box');
         expect(box, isNotNull);
         expect(box.path, p.join(storageDirectory.path, 'hydrated_box.hive'));
       });
@@ -87,7 +90,7 @@ void main() {
       setUp(() {
         box = MockBox();
         when(() => box.clear()).thenAnswer((_) async => 0);
-        storage = HydratedStorage(box);
+        storage = HiveHydratedStorage(box);
       });
 
       group('read', () {
@@ -156,8 +159,8 @@ void main() {
     group('During heavy load', () {
       test('writes key/value pairs correctly', () async {
         const token = 'token';
-        storage = await HydratedStorage.build(
-          storageDirectory: Directory(cwd),
+        storage = await HiveHydratedStorage.build(
+          storageDirectoryPath: cwd,
         );
         await Stream.fromIterable(
           Iterable.generate(120, (i) => i),
@@ -169,8 +172,8 @@ void main() {
 
           unawaited(storage.write(token, record));
 
-          storage = await HydratedStorage.build(
-            storageDirectory: Directory(cwd),
+          storage = await HiveHydratedStorage.build(
+            storageDirectoryPath: cwd,
           );
 
           final written = storage.read(token) as List<List<String>>;
@@ -188,15 +191,15 @@ void main() {
         await storage.clear();
         await Hive.close();
         await Hive.deleteFromDisk();
-        await HydratedStorage.hive.close();
+        await HiveHydratedStorage.hive.close();
         await Directory(temp).delete(recursive: true);
         await Directory(docs).delete(recursive: true);
       });
 
       test('Hive and Hydrated default directories', () async {
         Hive.init(docs);
-        storage = await HydratedStorage.build(
-          storageDirectory: Directory(temp)..createSync(),
+        storage = await HiveHydratedStorage.build(
+          storageDirectoryPath: (await Directory(temp).create()).path,
         );
 
         var box = await Hive.openBox<String>('hive');

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:hive/hive.dart';
-import 'package:hydrated_state_notifier/hydrated_state_notifier.dart';
+import 'package:hydrated_state_notifier_hive/hydrated_state_notifier_hive.dart';
 import 'package:test/test.dart';
 
 void main() {

@@ -1,0 +1,3 @@
+dependency_overrides:
+  hydrated_state_notifier:
+    path: ../hydrated_state_notifier

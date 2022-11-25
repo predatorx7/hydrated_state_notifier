@@ -11,10 +11,10 @@ abstract class HydratedStateNotifier<State> extends StateNotifier<State>
   /// {@macro hydrated_cubit}
   HydratedStateNotifier(
     State state, {
-    Storage? storage,
+    HydratedStorage? storage,
     this.id = '',
     this.version = 1,
-  })  : storage = storage ?? HydratedStateNotifier.commonStorage,
+  })  : storage = storage ?? HydratedStorage.storage,
         super(state) {
     hydrate();
   }
@@ -26,19 +26,5 @@ abstract class HydratedStateNotifier<State> extends StateNotifier<State>
   final int version;
 
   @override
-  final Storage storage;
-
-  static Storage? _commonStorage;
-
-  /// Setter for instance of [Storage] which will be used to
-  /// manage persisting/restoring the [StateNotifier] state.
-  static set commonStorage(Storage? commonStorage) =>
-      _commonStorage = commonStorage;
-
-  /// Instance of [Storage] which will be used to
-  /// manage persisting/restoring the [StateNotifier] state.
-  static Storage get commonStorage {
-    if (_commonStorage == null) throw const StorageNotFound();
-    return _commonStorage!;
-  }
+  final HydratedStorage storage;
 }
