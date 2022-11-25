@@ -10,11 +10,9 @@ int calculate() {
 const kIsWeb = identical(0, 0.0);
 
 Future<void> setupStorage() async {
-  HydratedStateNotifier.storage = await HydratedStorage.build(
+  HydratedStateNotifier.commonStorage = await HydratedStorage.build(
     storageDirectory: kIsWeb
         ? HydratedStorage.webStorageDirectory
-        : await Directory(
-                path.join(Directory.current.path, '.cache'))
-            .create(),
+        : await Directory(path.join(Directory.current.path, '.cache')).create(),
   );
 }

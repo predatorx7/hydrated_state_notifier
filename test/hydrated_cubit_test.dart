@@ -99,7 +99,7 @@ void main() {
       when<dynamic>(() => storage.read(any())).thenReturn(<String, dynamic>{});
       when(() => storage.delete(any())).thenAnswer((_) async {});
       when(() => storage.clear()).thenAnswer((_) async {});
-      HydratedStateNotifier.storage = storage;
+      HydratedStateNotifier.commonStorage = storage;
     });
 
     test('reads from storage once upon initialization', () {
@@ -133,9 +133,9 @@ void main() {
         'when cache value exists', () {
       when<dynamic>(() => storage.read(any())).thenReturn({'value': 42});
       final cubit = MyCallbackHydratedStateNotifier();
-      expect(cubit.state, 42);
+      expect(cubit.debugState, 42);
       cubit.increment();
-      expect(cubit.state, 43);
+      expect(cubit.debugState, 43);
       verify<dynamic>(() => storage.read('MyCallbackHydratedStateNotifier'))
           .called(1);
     });
@@ -148,9 +148,9 @@ void main() {
       final cubit = MyCallbackHydratedStateNotifier(
         onFromJsonCalled: fromJsonCalls.add,
       );
-      expect(cubit.state, 42);
+      expect(cubit.debugState, 42);
       cubit.increment();
-      expect(cubit.state, 43);
+      expect(cubit.debugState, 43);
       expect(fromJsonCalls, [
         {'value': 42}
       ]);
@@ -161,9 +161,9 @@ void main() {
         'when cache is empty', () {
       when<dynamic>(() => storage.read(any())).thenReturn(null);
       final cubit = MyCallbackHydratedStateNotifier();
-      expect(cubit.state, 0);
+      expect(cubit.debugState, 0);
       cubit.increment();
-      expect(cubit.state, 1);
+      expect(cubit.debugState, 1);
       verify<dynamic>(() => storage.read('MyCallbackHydratedStateNotifier'))
           .called(1);
     });
@@ -174,9 +174,9 @@ void main() {
       final cubit = MyCallbackHydratedStateNotifier(
         onFromJsonCalled: fromJsonCalls.add,
       );
-      expect(cubit.state, 0);
+      expect(cubit.debugState, 0);
       cubit.increment();
-      expect(cubit.state, 1);
+      expect(cubit.debugState, 1);
       expect(fromJsonCalls, isEmpty);
     });
 
@@ -185,9 +185,9 @@ void main() {
         'when cache is malformed', () {
       when<dynamic>(() => storage.read(any())).thenReturn('{');
       final cubit = MyCallbackHydratedStateNotifier();
-      expect(cubit.state, 0);
+      expect(cubit.debugState, 0);
       cubit.increment();
-      expect(cubit.state, 1);
+      expect(cubit.debugState, 1);
       verify<dynamic>(() => storage.read('MyCallbackHydratedStateNotifier'))
           .called(1);
     });
@@ -207,7 +207,7 @@ void main() {
 
     group('SingleHydratedStateNotifier', () {
       test('should throw StorageNotFound when storage is null', () {
-        HydratedStateNotifier.storage = null;
+        HydratedStateNotifier.commonStorage = null;
         expect(
           () => MyHydratedStateNotifier(),
           throwsA(isA<StorageNotFound>()),
@@ -228,8 +228,8 @@ void main() {
 
       test('storage getter returns correct storage instance', () {
         final storage = MockStorage();
-        HydratedStateNotifier.storage = storage;
-        expect(HydratedStateNotifier.storage, storage);
+        HydratedStateNotifier.commonStorage = storage;
+        expect(HydratedStateNotifier.commonStorage, storage);
       });
 
       test('should call storage.write when onChange is called', () {
@@ -278,19 +278,19 @@ void main() {
 
       test('initial state should return 0 when fromJson returns null', () {
         when<dynamic>(() => storage.read(any())).thenReturn(null);
-        expect(MyHydratedStateNotifier().state, 0);
+        expect(MyHydratedStateNotifier().debugState, 0);
         verify<dynamic>(() => storage.read('MyHydratedStateNotifier'))
             .called(1);
       });
 
       test('initial state should return 0 when deserialization fails', () {
         when<dynamic>(() => storage.read(any())).thenThrow(Exception('oops'));
-        expect(MyHydratedStateNotifier('', false).state, 0);
+        expect(MyHydratedStateNotifier('', false).debugState, 0);
       });
 
       test('initial state should return 101 when fromJson returns 101', () {
         when<dynamic>(() => storage.read(any())).thenReturn({'value': 101});
-        expect(MyHydratedStateNotifier().state, 101);
+        expect(MyHydratedStateNotifier().debugState, 101);
         verify<dynamic>(() => storage.read('MyHydratedStateNotifier'))
             .called(1);
       });
@@ -306,12 +306,12 @@ void main() {
     group('MultiHydratedStateNotifier', () {
       test('initial state should return 0 when fromJson returns null', () {
         when<dynamic>(() => storage.read(any())).thenReturn(null);
-        expect(MyMultiHydratedStateNotifier('A').state, 0);
+        expect(MyMultiHydratedStateNotifier('A').debugState, 0);
         verify<dynamic>(
           () => storage.read('MyMultiHydratedStateNotifierA'),
         ).called(1);
 
-        expect(MyMultiHydratedStateNotifier('B').state, 0);
+        expect(MyMultiHydratedStateNotifier('B').debugState, 0);
         verify<dynamic>(
           () => storage.read('MyMultiHydratedStateNotifierB'),
         ).called(1);
@@ -322,7 +322,7 @@ void main() {
         when<dynamic>(
           () => storage.read('MyMultiHydratedStateNotifierA'),
         ).thenReturn({'value': 101});
-        expect(MyMultiHydratedStateNotifier('A').state, 101);
+        expect(MyMultiHydratedStateNotifier('A').debugState, 101);
         verify<dynamic>(
           () => storage.read('MyMultiHydratedStateNotifierA'),
         ).called(1);
@@ -330,7 +330,7 @@ void main() {
         when<dynamic>(
           () => storage.read('MyMultiHydratedStateNotifierB'),
         ).thenReturn({'value': 102});
-        expect(MyMultiHydratedStateNotifier('B').state, 102);
+        expect(MyMultiHydratedStateNotifier('B').debugState, 102);
         verify<dynamic>(
           () => storage.read('MyMultiHydratedStateNotifierB'),
         ).called(1);

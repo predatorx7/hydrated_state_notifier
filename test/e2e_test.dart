@@ -33,7 +33,7 @@ void main() {
       storage = await HydratedStorage.build(
         storageDirectory: tempStorageDirectory,
       );
-      HydratedStateNotifier.storage = storage;
+      HydratedStateNotifier.commonStorage = storage;
     });
 
     tearDown(() async {
@@ -61,10 +61,10 @@ void main() {
           ),
         );
         final cubit = FreezedCubit();
-        expect(cubit.state, isNull);
+        expect(cubit.debugState, isNull);
         cubit.setQuestion(tree);
         await sleep();
-        expect(FreezedCubit().state, tree);
+        expect(FreezedCubit().debugState, tree);
       });
     });
 
@@ -74,10 +74,10 @@ void main() {
         final expected = const User.initial().copyWith(
           favoriteColor: Color.green,
         );
-        expect(cubit.state, const User.initial());
+        expect(cubit.debugState, const User.initial());
         cubit.updateFavoriteColor(Color.green);
         await sleep();
-        expect(JsonSerializableCubit().state, expected);
+        expect(JsonSerializableCubit().debugState, expected);
       });
     });
 
@@ -85,21 +85,21 @@ void main() {
       test('persists and restores string list correctly', () async {
         const item = 'foo';
         final cubit = ListCubit();
-        expect(cubit.state, isEmpty);
+        expect(cubit.debugState, isEmpty);
         cubit.addItem(item);
         await sleep();
-        expect(ListCubit().state, const <String>[item]);
+        expect(ListCubit().debugState, const <String>[item]);
       });
 
       test('persists and restores object->map list correctly', () async {
         const item = MapObject(1);
         const fromJson = MapObject.fromJson;
         final cubit = ListCubitMap<MapObject, int>(fromJson);
-        expect(cubit.state, isEmpty);
+        expect(cubit.debugState, isEmpty);
         cubit.addItem(item);
         await sleep();
         expect(
-          ListCubitMap<MapObject, int>(fromJson).state,
+          ListCubitMap<MapObject, int>(fromJson).debugState,
           const <MapObject>[item],
         );
       });
@@ -108,11 +108,11 @@ void main() {
         const item = MapObject(1);
         const fromJson = MapObject.fromJson;
         final cubit = ListCubitMap<MapObject, int>(fromJson, true);
-        expect(cubit.state, isEmpty);
+        expect(cubit.debugState, isEmpty);
         cubit.addItem(item);
         await sleep();
         expect(
-          ListCubitMap<MapObject, int>(fromJson).state,
+          ListCubitMap<MapObject, int>(fromJson).debugState,
           const <MapObject>[item],
         );
       });
@@ -121,11 +121,11 @@ void main() {
         final item = MapCustomObject(1);
         const fromJson = MapCustomObject.fromJson;
         final cubit = ListCubitMap<MapCustomObject, CustomObject>(fromJson);
-        expect(cubit.state, isEmpty);
+        expect(cubit.debugState, isEmpty);
         cubit.addItem(item);
         await sleep();
         expect(
-          ListCubitMap<MapCustomObject, CustomObject>(fromJson).state,
+          ListCubitMap<MapCustomObject, CustomObject>(fromJson).debugState,
           <MapCustomObject>[item],
         );
       });
@@ -135,11 +135,11 @@ void main() {
         const fromJson = MapCustomObject.fromJson;
         final cubit =
             ListCubitMap<MapCustomObject, CustomObject>(fromJson, true);
-        expect(cubit.state, isEmpty);
+        expect(cubit.debugState, isEmpty);
         cubit.addItem(item);
         await sleep();
         expect(
-          ListCubitMap<MapCustomObject, CustomObject>(fromJson).state,
+          ListCubitMap<MapCustomObject, CustomObject>(fromJson).debugState,
           <MapCustomObject>[item],
         );
       });
@@ -148,11 +148,11 @@ void main() {
         const item = ListObject(1);
         const fromJson = ListObject.fromJson;
         final cubit = ListCubitList<ListObject, int>(fromJson);
-        expect(cubit.state, isEmpty);
+        expect(cubit.debugState, isEmpty);
         cubit.addItem(item);
         await sleep();
         expect(
-          ListCubitList<ListObject, int>(fromJson).state,
+          ListCubitList<ListObject, int>(fromJson).debugState,
           const <ListObject>[item],
         );
       });
@@ -161,11 +161,11 @@ void main() {
         const item = ListObject(1);
         const fromJson = ListObject.fromJson;
         final cubit = ListCubitList<ListObject, int>(fromJson, true);
-        expect(cubit.state, isEmpty);
+        expect(cubit.debugState, isEmpty);
         cubit.addItem(item);
         await sleep();
         expect(
-          ListCubitList<ListObject, int>(fromJson).state,
+          ListCubitList<ListObject, int>(fromJson).debugState,
           const <ListObject>[item],
         );
       });
@@ -174,11 +174,11 @@ void main() {
         final item = ListMapObject(1);
         const fromJson = ListMapObject.fromJson;
         final cubit = ListCubitList<ListMapObject, MapObject>(fromJson);
-        expect(cubit.state, isEmpty);
+        expect(cubit.debugState, isEmpty);
         cubit.addItem(item);
         await sleep();
         expect(
-          ListCubitList<ListMapObject, MapObject>(fromJson).state,
+          ListCubitList<ListMapObject, MapObject>(fromJson).debugState,
           <ListMapObject>[item],
         );
       });
@@ -187,11 +187,11 @@ void main() {
         final item = ListMapObject(1);
         const fromJson = ListMapObject.fromJson;
         final cubit = ListCubitList<ListMapObject, MapObject>(fromJson, true);
-        expect(cubit.state, isEmpty);
+        expect(cubit.debugState, isEmpty);
         cubit.addItem(item);
         await sleep();
         expect(
-          ListCubitList<ListMapObject, MapObject>(fromJson).state,
+          ListCubitList<ListMapObject, MapObject>(fromJson).debugState,
           <ListMapObject>[item],
         );
       });
@@ -200,11 +200,11 @@ void main() {
         final item = ListListObject(1);
         const fromJson = ListListObject.fromJson;
         final cubit = ListCubitList<ListListObject, ListObject>(fromJson);
-        expect(cubit.state, isEmpty);
+        expect(cubit.debugState, isEmpty);
         cubit.addItem(item);
         await sleep();
         expect(
-          ListCubitList<ListListObject, ListObject>(fromJson).state,
+          ListCubitList<ListListObject, ListObject>(fromJson).debugState,
           <ListListObject>[item],
         );
       });
@@ -216,11 +216,11 @@ void main() {
           fromJson,
           true,
         );
-        expect(cubit.state, isEmpty);
+        expect(cubit.debugState, isEmpty);
         cubit.addItem(item);
         await sleep();
         expect(
-          ListCubitList<ListListObject, ListObject>(fromJson).state,
+          ListCubitList<ListListObject, ListObject>(fromJson).debugState,
           <ListListObject>[item],
         );
       });
@@ -229,11 +229,11 @@ void main() {
         final item = ListCustomObject(1);
         const fromJson = ListCustomObject.fromJson;
         final cubit = ListCubitList<ListCustomObject, CustomObject>(fromJson);
-        expect(cubit.state, isEmpty);
+        expect(cubit.debugState, isEmpty);
         cubit.addItem(item);
         await sleep();
         expect(
-          ListCubitList<ListCustomObject, CustomObject>(fromJson).state,
+          ListCubitList<ListCustomObject, CustomObject>(fromJson).debugState,
           <ListCustomObject>[item],
         );
       });
@@ -243,11 +243,11 @@ void main() {
         const fromJson = ListCustomObject.fromJson;
         final cubit =
             ListCubitList<ListCustomObject, CustomObject>(fromJson, true);
-        expect(cubit.state, isEmpty);
+        expect(cubit.debugState, isEmpty);
         cubit.addItem(item);
         await sleep();
         expect(
-          ListCubitList<ListCustomObject, CustomObject>(fromJson).state,
+          ListCubitList<ListCustomObject, CustomObject>(fromJson).debugState,
           <ListCustomObject>[item],
         );
       });
@@ -256,11 +256,11 @@ void main() {
           () async {
         const fromJson = ListCustomObject.fromJson;
         final cubit = ListCubitList<ListCustomObject, CustomObject>(fromJson);
-        expect(cubit.state, isEmpty);
+        expect(cubit.debugState, isEmpty);
         cubit.reset();
         await sleep();
         expect(
-          ListCubitList<ListCustomObject, CustomObject>(fromJson).state,
+          ListCubitList<ListCustomObject, CustomObject>(fromJson).debugState,
           isEmpty,
         );
       });
@@ -270,11 +270,11 @@ void main() {
         const fromJson = ListCustomObject.fromJson;
         final cubit =
             ListCubitList<ListCustomObject, CustomObject>(fromJson, true);
-        expect(cubit.state, isEmpty);
+        expect(cubit.debugState, isEmpty);
         cubit.reset();
         await sleep();
         expect(
-          ListCubitList<ListCustomObject, CustomObject>(fromJson).state,
+          ListCubitList<ListCustomObject, CustomObject>(fromJson).debugState,
           isEmpty,
         );
       });
@@ -284,30 +284,30 @@ void main() {
       test('persists and restores state correctly', () async {
         const dog = Dog('Rover', 5, [Toy('Ball')]);
         final cubit = ManualCubit();
-        expect(cubit.state, isNull);
+        expect(cubit.debugState, isNull);
         cubit.setDog(dog);
         await sleep();
-        expect(ManualCubit().state, dog);
+        expect(ManualCubit().debugState, dog);
       });
     });
 
     group('SimpleCubit', () {
       test('persists and restores state correctly', () async {
         final cubit = SimpleCubit();
-        expect(cubit.state, 0);
+        expect(cubit.debugState, 0);
         cubit.increment();
-        expect(cubit.state, 1);
+        expect(cubit.debugState, 1);
         await sleep();
-        expect(SimpleCubit().state, 1);
+        expect(SimpleCubit().debugState, 1);
       });
 
       test('does not throw after clear', () async {
         final cubit = SimpleCubit();
-        expect(cubit.state, 0);
+        expect(cubit.debugState, 0);
         cubit.increment();
-        expect(cubit.state, 1);
+        expect(cubit.debugState, 1);
         await storage.clear();
-        expect(SimpleCubit().state, 0);
+        expect(SimpleCubit().debugState, 0);
       });
     });
 
@@ -317,7 +317,7 @@ void main() {
         final cycle1 = Cycle1(cycle2);
         cycle2.cycle1 = cycle1;
         final cubit = CyclicCubit();
-        expect(cubit.state, isNull);
+        expect(cubit.debugState, isNull);
         expect(
           () => cubit.setCyclic(cycle1),
           throwsA(
@@ -334,7 +334,7 @@ void main() {
     group('BadCubit', () {
       test('throws unsupported object: no `toJson`', () async {
         final cubit = BadCubit();
-        expect(cubit.state, isNull);
+        expect(cubit.debugState, isNull);
         expect(
           cubit.setBad,
           throwsA(
@@ -349,7 +349,7 @@ void main() {
 
       test('throws unsupported object: bad `toJson`', () async {
         final cubit = BadCubit();
-        expect(cubit.state, isNull);
+        expect(cubit.debugState, isNull);
         expect(
           () => cubit.setBad(VeryBadObject()),
           throwsA(isA<HydratedUnsupportedError>()),
