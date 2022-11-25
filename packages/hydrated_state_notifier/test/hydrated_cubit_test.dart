@@ -9,6 +9,11 @@ class MockStorage extends Mock implements HydratedStorage {}
 
 class MyUuidHydratedStateNotifier extends HydratedStateNotifier<String> {
   MyUuidHydratedStateNotifier() : super(const Uuid().v4());
+  @override
+  void saveState(String change) {
+    print('did save state');
+    super.saveState(change);
+  }
 
   @override
   Map<String, String> toJson(String state) => {'value': state};
@@ -360,23 +365,31 @@ void main() {
 
       test('correctly caches computed initial state', () {
         dynamic cachedState;
-        when<dynamic>(() => storage.read(any())).thenReturn(cachedState);
+        when<dynamic>(() {
+          return storage.read(any());
+        }).thenReturn(cachedState);
         when(
-          () => storage.write(any(), any<dynamic>()),
+          () {
+            return storage.write(any(), any<dynamic>());
+          },
         ).thenAnswer((_) => Future<void>.value());
         MyUuidHydratedStateNotifier();
-        final captured = verify(
-          () => storage.write(
-              'MyUuidHydratedStateNotifier', captureAny<dynamic>()),
-        ).captured;
+
+        final captured = verify(() {
+          return storage.write(
+            'MyUuidHydratedStateNotifier',
+            captureAny<dynamic>(),
+          );
+        }).captured;
+
         cachedState = captured.first;
         when<dynamic>(() => storage.read(any())).thenReturn(cachedState);
-        MyUuidHydratedStateNotifier();
-        final secondCaptured = verify(
-          () => storage.write(
-              'MyUuidHydratedStateNotifier', captureAny<dynamic>()),
-        ).captured;
-        final dynamic initialStateB = secondCaptured.first;
+
+        final cachedValue = storage.read(
+          'MyUuidHydratedStateNotifier',
+        );
+
+        final dynamic initialStateB = cachedValue;
 
         expect(initialStateB, cachedState);
       });

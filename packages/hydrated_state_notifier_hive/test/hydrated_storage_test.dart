@@ -25,19 +25,6 @@ void main() {
       await HiveHydratedStorage.hive.deleteFromDisk();
     });
 
-    group('migration', () {
-      test('returns correct value when file exists', () async {
-        await File('${storageDirectory.path}/.hydrated_bloc.json')
-            .writeAsString(json.encode({
-          'CounterBloc': json.encode({'value': 4})
-        }));
-        storage = await HiveHydratedStorage.build(
-          storageDirectoryPath: storageDirectory.path,
-        );
-        expect(storage.read('CounterBloc')['value'] as int, 4);
-      });
-    });
-
     group('build', () {
       setUp(() async {
         await (await HiveHydratedStorage.build(
