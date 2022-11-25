@@ -8,5 +8,6 @@ export 'package:state_notifier/state_notifier.dart';
 
 export 'src/exceptions.dart';
 export 'src/hydrated_state_notifier.dart' hide NIL;
+export 'src/hydrated_state_controller.dart';
 export 'src/hydrated_cipher.dart';
 export 'src/hydrated_storage.dart';
