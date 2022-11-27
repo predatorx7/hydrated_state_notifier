@@ -5,10 +5,10 @@ import 'exceptions.dart';
 /// Interface which is used to persist and retrieve state changes.
 abstract class HydratedStorage {
   /// Returns value for key
-  dynamic read(String key);
+  Object? read(String key);
 
   /// Persists key value pair
-  Future<void> write(String key, dynamic value);
+  Future<void> write(String key, Object? value);
 
   /// Deletes key value pair
   Future<void> delete(String key);

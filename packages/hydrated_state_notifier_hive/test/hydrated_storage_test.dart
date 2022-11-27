@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:hive/hive.dart';
@@ -31,6 +30,7 @@ void main() {
           storageDirectoryPath: storageDirectory.path,
         ))
             .clear();
+        await HiveHydratedStorage.hive.close();
       });
 
       test('reuses existing instance when called multiple times', () async {
@@ -71,7 +71,7 @@ void main() {
 
     group('default constructor', () {
       const key = '__key__';
-      const value = '__value__';
+      const value = {'__value__': '__value__'};
       late Box box;
 
       setUp(() {
@@ -156,16 +156,17 @@ void main() {
             i,
             (i) => Iterable.generate(i, (j) => 'Point($i,$j);').toList(),
           ).toList();
+          final data = {'data': record};
 
-          unawaited(storage.write(token, record));
+          unawaited(storage.write(token, data));
 
           storage = await HiveHydratedStorage.build(
             storageDirectoryPath: cwd,
           );
 
-          final written = storage.read(token) as List<List<String>>;
+          final written = storage.read(token) as Map<String, List<List<String>>>;
           expect(written, isNotNull);
-          expect(written, record);
+          expect(written, data);
         }).drain<dynamic>();
       });
     });
