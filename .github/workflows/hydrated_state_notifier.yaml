@@ -10,7 +10,7 @@ on:
 jobs:
   dart:
     runs-on: ubuntu-latest
-    container: google/dart:${{ matrix.channel }}
+    container: dart:${{ matrix.channel }}
 
     strategy:
       matrix:
@@ -18,12 +18,11 @@ jobs:
           - packages/hydrated_state_notifier
           - packages/hydrated_state_notifier_hive
         channel:
-          - dev
-          # latest is stable release
+          - latest
           - beta
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # It is executed separatly
       - name: Removing example folder
@@ -70,9 +69,9 @@ jobs:
           - beta
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@v2
         with:
           channel: ${{ matrix.channel }}
 
@@ -105,7 +104,7 @@ jobs:
 
   pana:
     runs-on: ubuntu-latest
-    container: google/dart:${{ matrix.channel }}
+    container: dart:${{ matrix.channel }}
 
     strategy:
       matrix:
@@ -113,12 +112,11 @@ jobs:
           - packages/hydrated_state_notifier
           - packages/hydrated_state_notifier_hive
         channel:
-          - dev
-          # latest is stable release
+          - latest
           - beta
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install Dependencies
         run: |
