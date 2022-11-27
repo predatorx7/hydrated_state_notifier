@@ -1,6 +1,7 @@
 name: example
 description: A sample command-line application.
 version: 1.0.0
+homepage: https://github.com/predatorx7/hydrated_state_notifier/tree/main/packages/hydrated_state_notifier/example
 publish_to: 'none'
 
 environment:
