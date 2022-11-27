@@ -87,7 +87,7 @@ jobs:
         working-directory: ${{ matrix.package }}
       - name: Verify Pub Score
         run: |
-          PANA=$(pana . --no-warning)
+          PANA=$(dart pub global run pana . --no-warning)
           PANA_SCORE=$(echo $PANA | sed -n "s/.*Points: \([0-9]*\)\/\([0-9]*\)./\1\/\2/p")
           IFS='/'; read -a SCORE_ARR <<< "$PANA_SCORE"; SCORE=SCORE_ARR[0]; TOTAL=SCORE_ARR[1]
           if [ -z "$1" ]; then MINIMUM_SCORE=TOTAL; else MINIMUM_SCORE=$1; fi
