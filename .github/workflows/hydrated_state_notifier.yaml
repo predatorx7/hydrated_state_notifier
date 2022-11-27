@@ -10,7 +10,6 @@ on:
 jobs:
   dart:
     runs-on: ubuntu-latest
-    container: dart:${{ matrix.channel }}
 
     strategy:
       matrix:
@@ -18,11 +17,14 @@ jobs:
           - packages/hydrated_state_notifier
           - packages/hydrated_state_notifier_hive
         channel:
-          - latest
+          - stable
           - beta
 
     steps:
       - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ matrix.channel }}
 
       # It is executed separatly
       - name: Removing example folder
@@ -30,19 +32,19 @@ jobs:
         working-directory: ${{ matrix.package }}
 
       - name: Install dependencies
-        run: dart pub get
+        run: flutter pub get
         working-directory: ${{ matrix.package }}
 
       - name: Check format
-        run: dart format --set-exit-if-changed .
+        run: flutter format --set-exit-if-changed .
         working-directory: ${{ matrix.package }}
 
       - name: Analyze
-        run: dart analyze
+        run: flutter analyze .
         working-directory: ${{ matrix.package }}
 
       - name: Run tests
-        run: dart test --coverage coverage --test-randomize-ordering-seed=random
+        run: flutter test -j 1 --no-pub --coverage --test-randomize-ordering-seed random
         working-directory: ${{ matrix.package }}
 
       - name: Coverage
