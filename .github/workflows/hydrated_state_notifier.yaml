@@ -80,5 +80,7 @@ jobs:
           dart pub global activate pana
         working-directory: ${{ matrix.package }}
       - name: Verify Pub Score
-        run: sudo chmod +x ../../scripts/verify_pub_score.sh; ../../scripts/verify_pub_score.sh 110
+        run: |
+          sudo chmod +x ../../scripts/verify_pub_score.sh
+          ../../scripts/verify_pub_score.sh 110
         working-directory: ${{ matrix.package }}
