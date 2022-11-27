@@ -2,7 +2,13 @@ name: hydrated_state_notifier
 
 on:
   push:
+    paths:
+      - "packages/**"
+      - ".github/workflows/hydrated_state_notifier.yaml"
   pull_request:
+    paths:
+      - "packages/**"
+      - ".github/workflows/hydrated_state_notifier.yaml"
   schedule:
     # runs the CI every first day of every month at 00:00 AM
     - cron: "0 0 1 * *"
@@ -81,6 +87,9 @@ jobs:
         working-directory: ${{ matrix.package }}
       - name: Verify Pub Score
         run: |
-          sudo chmod +x ../../scripts/verify_pub_score.sh
-          ../../scripts/verify_pub_score.sh 110
+          PANA=$(pana . --no-warning)
+          PANA_SCORE=$(echo $PANA | sed -n "s/.*Points: \([0-9]*\)\/\([0-9]*\)./\1\/\2/p")
+          IFS='/'; read -a SCORE_ARR <<< "$PANA_SCORE"; SCORE=SCORE_ARR[0]; TOTAL=SCORE_ARR[1]
+          if [ -z "$1" ]; then MINIMUM_SCORE=TOTAL; else MINIMUM_SCORE=$1; fi
+          if (( $SCORE < $MINIMUM_SCORE )); then echo "minimum score $MINIMUM_SCORE was not met!"; exit 1; fi
         working-directory: ${{ matrix.package }}
