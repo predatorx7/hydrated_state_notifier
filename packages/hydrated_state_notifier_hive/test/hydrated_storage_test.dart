@@ -164,7 +164,8 @@ void main() {
             storageDirectoryPath: cwd,
           );
 
-          final written = storage.read(token) as Map<String, List<List<String>>>;
+          final written =
+              storage.read(token) as Map<String, List<List<String>>>;
           expect(written, isNotNull);
           expect(written, data);
         }).drain<dynamic>();

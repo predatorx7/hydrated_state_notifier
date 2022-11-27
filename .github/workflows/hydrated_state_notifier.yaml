@@ -75,6 +75,7 @@ jobs:
         run: |
           dart pub get
           dart pub global activate pana
+        working-directory: ${{ matrix.package }}
       - name: Verify Pub Score
         run: ../../scripts/verify_pub_score.sh 110
         working-directory: ${{ matrix.package }}
