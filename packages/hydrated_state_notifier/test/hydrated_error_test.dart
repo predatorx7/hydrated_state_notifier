@@ -90,7 +90,9 @@ void main() {
       );
     });
 
-    test('Passing json serializable object which should not throw HydratedUnsupportedError', () {
+    test(
+        'Passing json serializable object which should not throw HydratedUnsupportedError',
+        () {
       final Map<String, dynamic> data = {
         'some': 'object',
       };
