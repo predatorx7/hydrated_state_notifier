@@ -88,7 +88,7 @@ class HiveHydratedStorage implements HydratedStorage {
   /// Internal instance of [HiveImpl].
   /// It should only be used for testing.
   @visibleForTesting
-  static late HiveInterface hive;
+  static HiveInterface hive = HiveImpl();
 
   static final _lock = Lock();
   static HiveHydratedStorage? _instance;
