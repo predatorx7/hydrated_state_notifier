@@ -30,9 +30,6 @@ class HydratedStateController<State> extends HydratedStateNotifier<State> {
   @override
   State get state => super.state;
 
-  @override
-  set state(State value) => super.state = value;
-
   /// Calls a function with the current [state] and assigns the result as the
   /// new state.
   ///

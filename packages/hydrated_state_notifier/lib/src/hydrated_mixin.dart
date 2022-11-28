@@ -56,6 +56,10 @@ mixin HydratedMixin<State> on StateNotifier<State> {
 
   bool _synchronized = false;
 
+  @visibleForTesting
+  @protected
+  bool get debugSynchronized => _synchronized;
+
   void hydrate() {
     if (_synchronized) return;
     final cachedState = readSavedState();

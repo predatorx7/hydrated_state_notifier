@@ -2,8 +2,10 @@
 
 <p align="center">
 <a href="https://pub.dev/packages/hydrated_state_notifier"><img src="https://img.shields.io/pub/v/hydrated_state_notifier.svg" alt="Pub"></a>
-<a href="https://github.com/predatorx7/hydrated_state_notifier/actions"><img src="https://github.com/predatorx7/hydrated_state_notifier/workflows/build/badge.svg" alt="build"></a>
-<a href="https://codecov.io/gh/predatorx7/hydrated_state_notifier"><img src="https://codecov.io/gh/predatorx7/hydrated_state_notifier/branch/master/graph/badge.svg" alt="codecov"></a>
+<a href="https://github.com/predatorx7/hydrated_state_notifier/actions/workflows/hydrated_state_notifier.yaml"><img src="https://github.com/predatorx7/hydrated_state_notifier/actions/workflows/hydrated_state_notifier.yaml/badge.svg" alt="hydrated_state_notifier"></a>
+<a href="https://codecov.io/gh/predatorx7/hydrated_state_notifier" >
+<img src="https://codecov.io/gh/predatorx7/hydrated_state_notifier/branch/main/graph/badge.svg?token=B30DQIWOMP"/>
+</a>
 <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-purple.svg" alt="License: MIT"></a>
 </p>
 

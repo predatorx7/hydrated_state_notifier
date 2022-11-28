@@ -22,7 +22,7 @@ void counterExample() {
 
   print('First value: ${controller.state}!');
 
-  controller.state++;
+  controller.update((state) => state++);
 
   print('Second value: ${controller.state}!');
 
@@ -95,7 +95,7 @@ void multipleCounterExample() {
 
   print('controller1 first value: ${controller1.state}!');
 
-  controller1.state++;
+  controller1.update((state) => state++);
 
   print('controller1 second value: ${controller1.state}!');
 
@@ -108,7 +108,7 @@ void multipleCounterExample() {
 
   print('controller2 first value: ${controller2.state}!');
 
-  controller2.state++;
+  controller2.update((state) => state++);
 
   print('controller2 second value: ${controller2.state}!');
 
