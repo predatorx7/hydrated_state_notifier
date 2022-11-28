@@ -71,6 +71,22 @@ void main() {
       HydratedStorage.storage = storage;
     });
 
+    test('toString override is correct', () {
+      final Object object = <String, dynamic>{};
+      expect(
+        HydratedUnsupportedError(object).toString(),
+        'Converting object did not return an encodable object: ${Error.safeToString(object)}',
+      );
+
+      expect(
+        HydratedUnsupportedError(
+          <String, dynamic>{},
+          cause: 'Sample data',
+        ).toString(),
+        'Converting object to an encodable object failed: ${Error.safeToString(object)}',
+      );
+    });
+
     test('Reproducing HydratedUnsupportedError error with custom object', () {
       final Map<String, dynamic> data = {
         'some': 'object',
