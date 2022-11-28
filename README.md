@@ -11,9 +11,8 @@
 
 ## Features
 
-An implementation of HydratedStorage from
-[hydrated_state_notifier](https://pub.dev/packages/hydrated_state_notifier)
-library which automatically persists and restores states.
+An extension to the [state_notifier](https://pub.dev/packages/state_notifier)
+library which automatically persists and restores states using `HydratedStorage`. A [hive](https://pub.dev/packages/hive) implementation of HydratedStorage is [hydrated_state_notifier_hive](https://pub.dev/packages/hydrated_state_notifier_hive).
 
 ## Usage
 
@@ -24,13 +23,7 @@ library which automatically persists and restores states.
 Add package to your project with
 
 ```sh
-dart pub add hydrated_state_notifier
-```
-
-and
-
-```sh
-dart pub add hydrated_state_notifier_hive
+dart pub add hydrated_state_notifier hydrated_state_notifier_hive
 ```
 
 #### Import package
@@ -137,6 +130,100 @@ final counterController = HydratedStateController(
     toJson: (state) => {'count': state},
     id: 'counter_2',
 );
+```
+
+## HydratedMixin
+
+```dart
+class CounterController extends StateNotifier<int> with HydratedMixin {
+  CounterController() : super(0) {
+    // Hydrate must be called if using HydratedMixin or implementing any 
+    // [HydratedStateNotifier], or [HydratedStateController].
+    hydrate();
+  }
+
+  void increment() => state = state + 1;
+
+  @override
+  int fromJson(Map<String, dynamic> json) => json['value'] as int;
+
+  @override
+  Map<String, int> toJson(int state) => { 'value': state };
+  
+  @override
+  String get id => '';
+  
+  @override
+  // Use a common storage or pass another
+  HydratedStorage get storage => HydratedStorage.storage;
+  
+  @override
+  // Will be used for writing migrations in a later version
+  int get version => 1;
+}
+```
+
+## HydratedStorage
+
+You can implement a custom Storage by simply implementing the `HydratedStorage` interface and initializing HydratedStateNotifier with the custom Storage.
+
+```dart
+// my_hydrated_storage.dart
+
+class MyHydratedStorage implements HydratedStorage {
+  @override
+  Object? read(String key) {
+    // TODO: implement read
+  }
+
+  @override
+  Future<void> write(String key, Object? value) async {
+    // TODO: implement write
+  }
+
+  @override
+  Future<void> delete(String key) async {
+    // TODO: implement delete
+  }
+
+  @override
+  Future<void> clear() async {
+    // TODO: implement clear
+  }
+}
+```
+
+Setting a common storage for all.
+
+```dart
+// main.dart
+
+HydratedBloc.storage = MyHydratedStorage();
+runApp(MyApp());
+```
+
+or providing storage through the parameters:
+```dart
+final counterController = HydratedStateController(
+    0,
+    fromJson: (json) => json['count'] as int,
+    toJson: (state) => {'count': state},
+    storage: MyHydratedStorage(),
+);
+
+// or
+
+class CounterController extends HydratedStateNotifier<int> {
+  CounterController(String id) : super(0, id: id, storage: MyHydratedStorage());
+
+  void increment() => state = state + 1;
+
+  @override
+  int fromJson(Map<String, dynamic> json) => json['value'] as int;
+
+  @override
+  Map<String, int> toJson(int state) => { 'value': state };
+}
 ```
 
 ## Additional information

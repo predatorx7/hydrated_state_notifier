@@ -1,5 +1,5 @@
 name: hydrated_state_notifier_hive
-description: An extension to the state_notifier library which automatically persists and restores state_notifier states.
+description: An implementation of HydratedStorage from hydrated_state_notifier library which automatically persists and restores states built on top of hive.
 version: 1.0.0
 homepage: https://github.com/predatorx7/hydrated_state_notifier/tree/main/packages/hydrated_state_notifier_hive
 
