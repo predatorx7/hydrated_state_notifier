@@ -25,6 +25,9 @@ class Counter extends StateNotifier<int?> with HydratedMixin {
 
   @override
   int get version => 1;
+
+  @override
+  Duration? get validity => null;
 }
 
 void main() {
@@ -50,7 +53,7 @@ void main() {
         isNull,
       );
 
-      verify(() => storage.read(any())).called(1);
+      verify(() => storage.read(counter.storageToken)).called(1);
 
       counter.state = value;
 
@@ -63,7 +66,7 @@ void main() {
         equals(value),
       );
 
-      verify(() => storage.read(any())).called(1);
+      verify(() => storage.read(counter.storageToken)).called(1);
 
       final counter2 = Counter(null);
 
@@ -72,7 +75,7 @@ void main() {
         equals(value),
       );
 
-      verify(() => storage.read(any())).called(1);
+      verify(() => storage.read(counter.storageToken)).called(1);
 
       expect(counter2.debugSynchronized, isFalse);
     });

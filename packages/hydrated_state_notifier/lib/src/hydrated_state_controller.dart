@@ -4,6 +4,19 @@ import 'hydrated_storage.dart';
 typedef StateUpdateCallback<State> = State Function(State state);
 typedef FromJsonCallback<State> = State? Function(Map<String, dynamic> json);
 typedef ToJsonCallback<State> = Map<String, dynamic>? Function(State state);
+typedef MigrationCallback = Map<String, Object?> Function(
+  Map<String, Object?> state,
+  int oldVersion,
+  int version,
+);
+
+Map<String, Object?> _defaultMigration(
+  Map<String, Object?> state,
+  int oldVersion,
+  int version,
+) {
+  return state;
+}
 
 /// A [HydratedStateNotifier] that allows modifying its [state] from outside.
 ///
@@ -14,11 +27,13 @@ class HydratedStateController<State> extends HydratedStateNotifier<State> {
     State state, {
     required FromJsonCallback<State> fromJson,
     required ToJsonCallback<State> toJson,
+    MigrationCallback onMigrate = _defaultMigration,
     HydratedStorage? storage,
     String id = '',
     int version = 1,
   })  : _fromJson = fromJson,
         _toJson = toJson,
+        _onMigrate = onMigrate,
         super(
           state,
           storage: storage,
@@ -59,5 +74,16 @@ class HydratedStateController<State> extends HydratedStateNotifier<State> {
   @override
   Map<String, dynamic>? toJson(State state) {
     return _toJson(state);
+  }
+
+  final MigrationCallback _onMigrate;
+
+  @override
+  Map<String, Object?> onMigrate(
+    Map<String, Object?> state,
+    int oldVersion,
+    int version,
+  ) {
+    return _onMigrate(state, oldVersion, version);
   }
 }

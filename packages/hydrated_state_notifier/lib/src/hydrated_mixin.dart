@@ -26,12 +26,70 @@ mixin HydratedMixin<State> on StateNotifier<State> {
   HydratedStorage get storage;
 
   @protected
+  StorageMetadata? getMetadata() {
+    try {
+      final metaJson = storage.read(
+        storageMetadataToken,
+      ) as Map<dynamic, dynamic>?;
+      if (metaJson != null) {
+        return StorageMetadata.fromJson(
+          ConversionUtils.forRead(metaJson) ?? <String, Object?>{},
+        );
+      }
+    } catch (error, stackTrace) {
+      onError?.call(error, stackTrace);
+    }
+    return null;
+  }
+
+  @protected
+  void updateMetadata() {
+    try {
+      final now = DateTime.now();
+      final oldMetadata = getMetadata() ??
+          StorageMetadata(
+            createdAt: now,
+            updatedAt: now,
+            validity: null,
+            version: version,
+          );
+
+      final metaJson = oldMetadata
+          .copyWith(
+            validity: validity,
+            updatedAt: now,
+            version: version,
+          )
+          .toJson();
+      storage
+          .write(storageMetadataToken, metaJson)
+          .then((_) {}, onError: onError);
+    } catch (error, stackTrace) {
+      onError?.call(error, stackTrace);
+    }
+  }
+
+  @protected
   State? readSavedState() {
     try {
+      final metadata = getMetadata();
+      if (metadata != null && !metadata.isValid) return null;
       final stateJson = storage.read(storageToken) as Map<dynamic, dynamic>?;
       if (stateJson != null) {
-        final cachedState = _fromJson(stateJson);
+        final convertedJson = ConversionUtils.forRead(
+              stateJson,
+            ) ??
+            <String, dynamic>{};
+        final migratedStateJson = migrate(metadata, convertedJson);
+        final cachedState = _fromJson(migratedStateJson);
         if (cachedState != null) {
+          final didMigrate = !(const DeepCollectionEquality.unordered()).equals(
+            migratedStateJson,
+            stateJson,
+          );
+          if (didMigrate) {
+            saveState(cachedState);
+          }
           return cachedState;
         }
       }
@@ -48,6 +106,7 @@ mixin HydratedMixin<State> on StateNotifier<State> {
       if (stateJson != null) {
         storage.write(storageToken, stateJson).then((_) {}, onError: onError);
       }
+      updateMetadata();
     } catch (error, stackTrace) {
       onError?.call(error, stackTrace);
       rethrow;
@@ -70,6 +129,25 @@ mixin HydratedMixin<State> on StateNotifier<State> {
       saveState(value);
     }
     _synchronized = true;
+  }
+
+  Map<String, Object?> migrate(
+    StorageMetadata? metadata,
+    Map<String, Object?> cachedState,
+  ) {
+    final savedVersion = metadata?.version;
+    if (savedVersion == null || savedVersion == version) return cachedState;
+    final migratedState = onMigrate(cachedState, savedVersion, version);
+    return migratedState;
+  }
+
+  @protected
+  Map<String, Object?> onMigrate(
+    Map<String, Object?> state,
+    int oldVersion,
+    int version,
+  ) {
+    return state;
   }
 
   @override
@@ -103,131 +181,12 @@ mixin HydratedMixin<State> on StateNotifier<State> {
     saveState(change);
   }
 
-  State? _fromJson(dynamic json) {
-    final dynamic traversedJson = _traverseRead(json);
-    final castJson = _cast<Map<String, dynamic>>(traversedJson);
-    return fromJson(castJson ?? <String, dynamic>{});
+  State? _fromJson(Map<String, Object?> json) {
+    return fromJson(json);
   }
 
   Map<String, dynamic>? _toJson(State state) {
-    return _cast<Map<String, dynamic>>(_traverseWrite(toJson(state)).value);
-  }
-
-  dynamic _traverseRead(dynamic value) {
-    if (value is Map) {
-      return value.map<String, dynamic>((dynamic key, dynamic value) {
-        return MapEntry<String, dynamic>(
-          _cast<String>(key) ?? '',
-          _traverseRead(value),
-        );
-      });
-    }
-    if (value is List) {
-      for (var i = 0; i < value.length; i++) {
-        value[i] = _traverseRead(value[i]);
-      }
-    }
-    return value;
-  }
-
-  T? _cast<T>(dynamic x) => x is T ? x : null;
-
-  _Traversed _traverseWrite(Object? value) {
-    final dynamic traversedAtomicJson = _traverseAtomicJson(value);
-    if (traversedAtomicJson is! NIL) {
-      return _Traversed.atomic(traversedAtomicJson);
-    }
-    final dynamic traversedComplexJson = _traverseComplexJson(value);
-    if (traversedComplexJson is! NIL) {
-      return _Traversed.complex(traversedComplexJson);
-    }
-    try {
-      _checkCycle(value);
-      final dynamic customJson = _toEncodable(value);
-      final dynamic traversedCustomJson = _traverseJson(customJson);
-      if (traversedCustomJson is NIL) {
-        throw HydratedUnsupportedError(value);
-      }
-      _removeSeen(value);
-      return _Traversed.complex(traversedCustomJson);
-    } on HydratedCyclicError catch (e) {
-      throw HydratedUnsupportedError(value, cause: e);
-    } on HydratedUnsupportedError {
-      rethrow; // do not stack `HydratedUnsupportedError`
-    } catch (e) {
-      throw HydratedUnsupportedError(value, cause: e);
-    }
-  }
-
-  dynamic _traverseAtomicJson(dynamic object) {
-    if (object is num) {
-      if (!object.isFinite) return const NIL();
-      return object;
-    } else if (identical(object, true)) {
-      return true;
-    } else if (identical(object, false)) {
-      return false;
-    } else if (object == null) {
-      return null;
-    } else if (object is String) {
-      return object;
-    }
-    return const NIL();
-  }
-
-  dynamic _traverseComplexJson(dynamic object) {
-    if (object is List) {
-      if (object.isEmpty) return object;
-      _checkCycle(object);
-      List<dynamic>? list;
-      for (var i = 0; i < object.length; i++) {
-        final traversed = _traverseWrite(object[i]);
-        list ??= traversed.outcome == _Outcome.atomic
-            ? object.sublist(0)
-            : (<dynamic>[]..length = object.length);
-        list[i] = traversed.value;
-      }
-      _removeSeen(object);
-      return list;
-    } else if (object is Map) {
-      _checkCycle(object);
-      final map = <String, dynamic>{};
-      object.forEach((dynamic key, dynamic value) {
-        final castKey = _cast<String>(key);
-        if (castKey != null) {
-          map[castKey] = _traverseWrite(value).value;
-        }
-      });
-      _removeSeen(object);
-      return map;
-    }
-    return const NIL();
-  }
-
-  dynamic _traverseJson(dynamic object) {
-    final dynamic traversedAtomicJson = _traverseAtomicJson(object);
-    return traversedAtomicJson is! NIL
-        ? traversedAtomicJson
-        : _traverseComplexJson(object);
-  }
-
-  dynamic _toEncodable(dynamic object) => object.toJson();
-
-  final List _seen = <dynamic>[];
-
-  void _checkCycle(Object? object) {
-    for (var i = 0; i < _seen.length; i++) {
-      if (identical(object, _seen[i])) {
-        throw HydratedCyclicError(object);
-      }
-    }
-    _seen.add(object);
-  }
-
-  void _removeSeen(dynamic object) {
-    assert(_seen.isNotEmpty);
-    assert(identical(_seen.last, object));
-    _seen.removeLast();
+    return ConversionUtils.forWrite(toJson(state));
   }
 
   /// [id] is used to uniquely identify multiple instances
@@ -244,6 +203,8 @@ mixin HydratedMixin<State> on StateNotifier<State> {
   /// In most cases it is not necessary to use it;
   int get version;
 
+  Duration? get validity;
+
   /// Storage prefix which can be overridden to provide a custom
   /// storage namespace.
   /// Defaults to [runtimeType] but should be overridden in cases
@@ -256,10 +217,17 @@ mixin HydratedMixin<State> on StateNotifier<State> {
   @nonVirtual
   String get storageToken => '$storagePrefix$id';
 
+  String get storageMetadataToken => 'metadata.$storageToken';
+
   /// [clear] is used to wipe or invalidate the cache of a [HydratedStateNotifier].
   /// Calling [clear] will delete the cached state of the bloc
   /// but will not modify the current state of the bloc.
-  Future<void> clear() => storage.delete(storageToken);
+  Future<void> clear() {
+    return Future.wait([
+      storage.delete(storageToken),
+      storage.delete(storageMetadataToken),
+    ]);
+  }
 
   /// Responsible for converting the `Map<String, dynamic>` representation
   /// of the bloc state into a concrete instance of the bloc state.
@@ -270,27 +238,4 @@ mixin HydratedMixin<State> on StateNotifier<State> {
   ///
   /// If [toJson] returns `null`, then no state changes will be persisted.
   Map<String, dynamic>? toJson(State state);
-}
-
-/// {@template NIL}
-/// Type which represents objects that do not support json encoding
-///
-/// This should never be used and is exposed only for testing purposes.
-/// {@endtemplate}
-@visibleForTesting
-class NIL {
-  /// {@macro NIL}
-  const NIL();
-}
-
-enum _Outcome { atomic, complex }
-
-class _Traversed {
-  _Traversed._({required this.outcome, required this.value});
-  _Traversed.atomic(dynamic value)
-      : this._(outcome: _Outcome.atomic, value: value);
-  _Traversed.complex(dynamic value)
-      : this._(outcome: _Outcome.complex, value: value);
-  final _Outcome outcome;
-  final dynamic value;
 }
