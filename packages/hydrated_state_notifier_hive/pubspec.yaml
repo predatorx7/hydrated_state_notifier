@@ -1,6 +1,6 @@
 name: hydrated_state_notifier_hive
 description: An implementation of HydratedStorage from hydrated_state_notifier library which automatically persists and restores states built on top of hive.
-version: 1.0.0
+version: 2.0.0
 publish_to: "none"
 homepage: https://github.com/predatorx7/hydrated_state_notifier/tree/main/packages/hydrated_state_notifier_hive
 
@@ -15,6 +15,7 @@ dependencies:
     git:
       url: git@github.com:amanxnanda/hydrated_state_notifier.git
       ref: chore/dependency-upgrade
+      path: packages/hydrated_state_notifier
 
 dev_dependencies:
   lints: ^3.0.0

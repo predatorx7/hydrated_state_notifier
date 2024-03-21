@@ -11,6 +11,7 @@ dependencies:
     git:
       url: git@github.com:amanxnanda/hydrated_state_notifier.git
       ref: chore/dependency-upgrade
+      path: packages/hydrated_state_notifier
   hydrated_state_notifier_hive:
     path: ../
   path: ^1.8.2
