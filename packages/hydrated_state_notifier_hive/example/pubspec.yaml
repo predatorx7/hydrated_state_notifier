@@ -1,14 +1,17 @@
 name: example
 description: A sample command-line application.
 version: 1.0.0
-publish_to: 'none'
+publish_to: "none"
 
 environment:
-  sdk: '>=2.18.4 <3.0.0'
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   hydrated_state_notifier:
-    path: ../../hydrated_state_notifier
+    git:
+      url: git@github.com:amanxnanda/hydrated_state_notifier.git
+      ref: chore/dependency-upgrade
+      path: packages/hydrated_state_notifier
   hydrated_state_notifier_hive:
     path: ../
   path: ^1.8.2
